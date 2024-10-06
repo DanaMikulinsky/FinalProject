@@ -4,7 +4,7 @@ Order an ambulance without evacuation to a hospital
  
 
 Last updated: 28.6.23
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Maccabi members who ordered an ambulance or had an ambulance ordered for them, and the ambulance staff did not evacuate them to the hospital. 
 

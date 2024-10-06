@@ -4,7 +4,7 @@ MRI, CT, and complex mappings
  
 
 Last updated: 31.8.23
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Members who received a doctor's referral and preliminary approval from the National Consultation Center for imaging tests.
 

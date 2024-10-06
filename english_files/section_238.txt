@@ -4,7 +4,7 @@ Insulin pump for diabetics
  
 
 Last updated: 05.3.23
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Diabetics treated with insulin.
 

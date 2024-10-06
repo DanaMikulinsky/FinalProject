@@ -4,7 +4,7 @@ Test to identify blood type
  
 
 Last updated: 28.2.23
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Members of the Maccabi who need clarification of blood type, which are:pregnant women
 Spouses for pregnant women with RH negative

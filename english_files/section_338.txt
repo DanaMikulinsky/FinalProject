@@ -1,7 +1,7 @@
 Speech prosthesis for cancer patients (maintenance and replacement)
 
  Maintenance and replacement of a speech prosthesis for cancer patients undergoing laryngectomy surgery. The prosthesis allows speech and sound playback without the voice box.
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Speech prosthesis implants who underwent a complete laryngectomy.
 

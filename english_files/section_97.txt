@@ -1,7 +1,7 @@
 Lending a desktop device to monitor the level of oxygen in the blood (storemeter)
 
  A device for monitoring the level of oxygen in the blood. Designed for people with a disease accompanied by hypoxia, including advanced lung disease, neuromuscular disease, or severe heart disease.
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Friends who are ill with a disease accompanied by hypoxia.
 

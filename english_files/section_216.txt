@@ -1,7 +1,7 @@
 High flow o2 device for lung patients
 
  A device that delivers high oxygen current and high humidity through oxygen glasses (epic canola).
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Members of the Maccabi who have chronic obstructive pulmonary disease (COPD) or cystic fibrosis, have a recommendation from a pulmonologist and preliminary approval from the Committee for Unusual Non-Drug Technologies.
 

@@ -1,7 +1,7 @@
 Testing for early detection of tuberculosis for job candidates in Maccabi
 
  Test for early detection of tuberculosis, in which a harmless amount of the bacterium is injected under the skin, for job candidates in Maccabi.
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Candidates for a job in Maccabi even if they are not members of Maccabi
 

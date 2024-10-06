@@ -1,7 +1,7 @@
 LOPERICORDER DEVICE FOR HEART RATE MONITORING
 
  A device for monitoring heart rate, designed for children and adults suffering from symptomatic arrhythmias.
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Members of Maccabi suffering from symptomatic arrhythmias.
 

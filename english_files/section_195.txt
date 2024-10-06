@@ -1,7 +1,7 @@
 INR meter for blood clotting monitoring
 
  A home device for monitoring blood clotting for patients with anticoagulant drugs.
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Members of Maccabi belonging to one of the following populations:
  Babies up to 2 years old after valve replacement

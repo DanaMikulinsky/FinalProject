@@ -1,7 +1,7 @@
 Device for continuous monitoring of sugar 
 
  A device that is permanently attached to the patient's body, to which sensors (sensors) are connected that allow blood sugar to be monitored continuously, throughout the day.
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Friends diagnosed with these medical conditions
 DIABETES TYPE1 - WITH DEFINITE MEDICAL INDICATIONS
@@ -162,6 +162,6 @@ Super Pharm Revealed
 Super Pharm Ramat Yishai
 Super Pharm Souvenir Batia
 Super Pharm that repays all of the above is subject to the additional health care regulations in Maccabi.
-My Maccabi Rules >
+Maccabi Shelli Rules >
 Maccabi Gold Rules >
 Maccabi Silver Regulations >

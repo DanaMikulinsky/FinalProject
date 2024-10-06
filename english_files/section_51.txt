@@ -1,7 +1,7 @@
 Fetal monitor test with rapid decoding
 
  A unique fetal monitor system that allows examination in a nursing clinic with reliable decoding in a short time.
-The insurance layers are: Maccabi Shelley, Maccabi Gold, Maccabi Silver, Basic Basket
+The insurance layers are: Maccabi Shelli, Maccabi Gold, Maccabi Silver, Basic Basket
 Who is eligible?
 Pregnant women from the 28th week of pregnancy who need fetal monitoring.
 
