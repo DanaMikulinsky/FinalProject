@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="azureml_py38_PT_and_TF" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="azureml_py38_PT_and_TF" project-jdk-type="Python SDK" />
 </project>
