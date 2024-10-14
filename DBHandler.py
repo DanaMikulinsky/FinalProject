@@ -17,6 +17,9 @@ class DBHandler:
 		Args:
 			user_id (str): The name of the collection containing the chat histories
 			connection_string (str): The connection string to the MongoDB database
+		Raises:
+			ValueError: If the connection string is not a non-empty string
+			RuntimeError: If an error occurs while trying to connect to the database
 		"""
 		# constants
 		self.embeddings_db = 'embeddings'
@@ -32,6 +35,7 @@ class DBHandler:
 		except Exception as e:
 			raise f'An error occurred while trying to connect to the database: {e}'
 
+		self.user_id = user_id
 		self.embeddings_collection = self.client[self.embeddings_db][user_id]
 		self.history_collection = self.client[self.histories_db][user_id]
 
@@ -39,14 +43,14 @@ class DBHandler:
 		"""
 		Get the chat history from the database
 		Returns:
-			list: A list of strings containing the chat history in the format 'role: content'
+			formatted_messages (list): A list of strings containing the chat history in the format 'role: content'
 		Raises:
-			Exception: If an error occurs while trying to get the chat history
+			RuntimeError: If an error occurs while trying to get the chat history
 		"""
 		try:
 			messages = self.history_collection.find()
 		except Exception as e:
-			raise f'An error occurred while trying to get the chat history: {e}'
+			raise RuntimeError(f'An error occurred while trying to get the chat history: {e}')
 
 		# Format the messages in the desired 'role: content' format
 		formatted_messages = [f"{message['role']}: {message['content']}" for message in messages]
@@ -62,7 +66,7 @@ class DBHandler:
 			InsertOneResult or InsertManyResult: The ID of the inserted document or a list of IDs of the inserted documents
 		Raises:
 			ValueError: If the message is not a dictionary or a list of dictionaries
-			Exception: If an error occurs while trying to update the chat history
+			RuntimeError: If an error occurs while trying to update the chat history
 		"""
 		if db == 'embeddings':
 			collection = self.embeddings_collection
@@ -81,7 +85,7 @@ class DBHandler:
 		except BulkWriteError as bwe:
 			raise RuntimeError(f'Duplicate key error occurred: {bwe.details}')
 		except Exception as e:
-			raise RuntimeError(f'An error occurred while trying to update the chat history: {str(e)}')
+			raise RuntimeError(f'An error occurred while trying to update the chat history: {e}')
 
 		return result
 
@@ -89,10 +93,63 @@ class DBHandler:
 		"""
 		Delete all the chat history from the collection
 		Raises:
-			Exception: If an error occurs while trying to reset the chat history
+			RuntimeError: If an error occurs while trying to reset the chat history
 		"""
 		try:
 			self.history_collection.delete_many({})
 		except Exception as e:
-			raise f'An error occurred while trying to reset the chat history: {e}'
+			raise RuntimeError(f'An error occurred while trying to reset the chat history: {e}')
+
+	def search(self, query_vector: list, n: int = 5) -> list:
+		"""
+		Use MongoDB's Atlas vector search to find the most similar embeddings to the query vector
+		Args:
+			query_vector (list): A list containing the query vector
+			n (int): The number of most similar embeddings to return
+		Returns:
+			results (list): A list dicts containing the most similar items according to the cosine similarity
+		Raises:
+			RuntimeError: If an error occurs while trying to search for similar embeddings
+		"""
+		pipeline = [
+			{
+				'$vectorSearch': {
+					'exact': False,
+					'index': 'maccabi_index',
+					'limit': n,
+					'numCandidates': n * 20,  # according to the documentation, should be 10-20 times the limit
+					'path': 'embedding',
+					'queryVector': query_vector,
+				}
+			},
+			{
+				'$project': {
+					'_id': 0,
+					'text': 1,
+					'embedding': 1,
+					'score': {
+						'$meta': 'vectorSearchScore'
+					}
+				}
+			}
+		]
+
+		try:
+			results = self.embeddings_collection.aggregate(pipeline)
+		except Exception as e:
+			raise RuntimeError(f'An error occurred while trying to search for similar embeddings: {e}')
+
+		results_to_return = []
+		for result in results:
+			readable_result = {
+				'text': result['text'],
+				'embedding': result['embedding'],
+				'score': result['score']
+			}
+			results_to_return.append(readable_result)
+
+		return results_to_return
+
+	def __repr__(self):
+		return f'DBHandler(user_id={self.user_id})'
 
