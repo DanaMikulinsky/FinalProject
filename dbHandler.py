@@ -1,59 +1,155 @@
-"""
-This module is responsible for handling all database operations.
-"""
-
 from pymongo import MongoClient
-from dotenv import load_dotenv
+from pymongo.errors import BulkWriteError
+from pymongo.results import InsertOneResult, InsertManyResult
+
+from typing import Union
+
 import os
-from utils.helpers import rephrase_question
+from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class DBHandler:
-    def __init__(self):
-        self.client = MongoClient(os.environ.get("MONGODB_CONNECTION_STRING"))
+	def __init__(self, user_id: str, connection_string: Union[str, None] = None):
+		"""
+		Initialize the DBHandler class
+		Args:
+			user_id (str): The name of the collection containing the chat histories
+			connection_string (str): The connection string to the MongoDB database
+		Raises:
+			ValueError: If the connection string is not a non-empty string
+			RuntimeError: If an error occurs while trying to connect to the database
+		"""
+		# constants
+		self.embeddings_db = 'embeddings'
+		self.histories_db = 'histories'
 
-    def get_mongo_client(self):
-        return self.client['chatbot_db']
+		if not connection_string:
+			connection_string = os.getenv('MONGODB_CONNECTION_STRING')
+		try:
+			if not connection_string or not isinstance(connection_string, str):
+				raise ValueError('Connection string must be a non-empty string.')
+			else:
+				self.client = MongoClient(connection_string)
+		except Exception as e:
+			raise f'An error occurred while trying to connect to the database: {e}'
 
-    def get_or_create_chat_history(self, db_constants, org_id, workspace_id):
-        """
-        maybe get rid of the "db_constants" parameter and use the class attribute instead?
-        """
-        chat_histories = self.client[db_constants['db']][db_constants['histories_collection']]
-        history = chat_histories.find_one({'_id': f'{org_id}_{workspace_id}_chat_history'})
-        if history:
-            return history.get('chat_history', [])
-        else:
-            chat_histories.insert_one({'_id': f'{org_id}_{workspace_id}_chat_history', 'chat_history': []})
-            return []
+		self.user_id = user_id
+		self.embeddings_collection = self.client[self.embeddings_db][user_id]
+		self.history_collection = self.client[self.histories_db][user_id]
 
-    def update_chat_history(self, db_constants, org_id, workspace_id, chat_history):
-        """
-        maybe get rid of the "db_constants" parameter and use the class attribute instead?
-        """
-        chat_histories = self.client[db_constants['db']][db_constants['histories_collection']]
+	def get_history(self) -> list:
+		"""
+		Get the chat history from the database
+		Returns:
+			formatted_messages (list): A list of strings containing the chat history in the format 'role: content'
+		Raises:
+			RuntimeError: If an error occurs while trying to get the chat history
+		"""
+		try:
+			messages = self.history_collection.find()
+		except Exception as e:
+			raise RuntimeError(f'An error occurred while trying to get the chat history: {e}')
 
-        filter_query = {'_id': f'{org_id}_{workspace_id}_chat_history'}
-        update_query = {'$set': {'chat_history': chat_history}}
-        chat_histories.update_one(filter_query, update_query)
+		# Format the messages in the desired 'role: content' format
+		formatted_messages = [f"{message['role']}: {message['content']}" for message in messages]
+		return formatted_messages
 
-    def interact(self, qa, question, db_constants, org_id, workspace_id):
-        """
-        maybe get rid of the "db_constants" parameter and use the class attribute instead?
-        """
-        chat_history = self.get_or_create_chat_history(db_constants, org_id, workspace_id)
+	def update(self, db: str, items: Union[dict, list]) -> Union[InsertOneResult, InsertManyResult]:
+		"""
+		Update the chat history in the database
+		Args:
+			db (str): The name of the db to update, either 'embeddings' or 'history'
+			items (dict or list): A dictionary or a list of dictionaries containing the items to be added to the collection
+		Returns:
+			InsertOneResult or InsertManyResult: The ID of the inserted document or a list of IDs of the inserted documents
+		Raises:
+			ValueError: If the message is not a dictionary or a list of dictionaries
+			RuntimeError: If an error occurs while trying to update the chat history
+		"""
+		if db == 'embeddings':
+			collection = self.embeddings_collection
+		elif db == 'history':
+			collection = self.history_collection
+		else:
+			raise ValueError('The db must be either "embeddings" or "history".')
 
-        standalone_question = rephrase_question(chat_history, question)
-        chat_history.append(f"User: {standalone_question}")
-        response = qa.invoke({"query": standalone_question})["result"]
-        chat_history.append(f"Chatbot: {response}")
+		try:
+			if isinstance(items, dict):
+				result = collection.insert_one(items)
+			elif isinstance(items, list):
+				result = collection.insert_many(items)
+			else:
+				raise ValueError('items must be a dictionary or a list of dictionaries.')
+		except BulkWriteError as bwe:
+			raise RuntimeError(f'Duplicate key error occurred: {bwe.details}')
+		except Exception as e:
+			raise RuntimeError(f'An error occurred while trying to update the chat history: {e}')
 
-        return response, chat_history
+		return result
 
-    def reset_chat_history(self, db_constants, org_id, workspace_id):
-        """
-        maybe get rid of the "db_constants" parameter and use the class attribute instead?
-        """
-        chat_histories = self.client[db_constants['db']][db_constants['histories_collection']]
-        chat_histories.update_one({'_id': f'{org_id}_{workspace_id}_chat_history'}, {'$set': {'chat_history': []}})
+	def reset_history(self):
+		"""
+		Delete all the chat history from the collection
+		Raises:
+			RuntimeError: If an error occurs while trying to reset the chat history
+		"""
+		try:
+			self.history_collection.delete_many({})
+		except Exception as e:
+			raise RuntimeError(f'An error occurred while trying to reset the chat history: {e}')
+
+	def search(self, query_vector: list, n: int = 5) -> list:
+		"""
+		Use MongoDB's Atlas vector search to find the most similar embeddings to the query vector
+		Args:
+			query_vector (list): A list containing the query vector
+			n (int): The number of most similar embeddings to return
+		Returns:
+			results (list): A list dicts containing the most similar items according to the cosine similarity
+		Raises:
+			RuntimeError: If an error occurs while trying to search for similar embeddings
+		"""
+		pipeline = [
+			{
+				'$vectorSearch': {
+					'exact': False,
+					'index': 'maccabi_index',
+					'limit': n,
+					'numCandidates': n * 20,  # according to the documentation, should be 10-20 times the limit
+					'path': 'embedding',
+					'queryVector': query_vector,
+				}
+			},
+			{
+				'$project': {
+					'_id': 0,
+					'text': 1,
+					'embedding': 1,
+					'score': {
+						'$meta': 'vectorSearchScore'
+					}
+				}
+			}
+		]
+
+		try:
+			results = self.embeddings_collection.aggregate(pipeline)
+		except Exception as e:
+			raise RuntimeError(f'An error occurred while trying to search for similar embeddings: {e}')
+
+		results_to_return = []
+		for result in results:
+			readable_result = {
+				'text': result['text'],
+				'embedding': result['embedding'],
+				'score': result['score']
+			}
+			results_to_return.append(readable_result)
+
+		return results_to_return
+
+	def __repr__(self):
+		return f'DBHandler(user_id={self.user_id})'
+
