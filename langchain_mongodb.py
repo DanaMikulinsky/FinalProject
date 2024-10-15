@@ -19,6 +19,9 @@ load_dotenv()
 
 
 def create_vdb(db_constants, paths, org_id, workspace_id, embeddings_engine='openai'):
+    """
+    this should be splitted into sub-functions and placed in DBHandler.py
+    """
     # connect to the database and create a collection
     OPENAI_API_KEY = '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'
     client = MongoClient(db_constants['connection_string'])
@@ -56,6 +59,9 @@ def create_vdb(db_constants, paths, org_id, workspace_id, embeddings_engine='ope
 
 
 def create_chatbot(db_constants, org_id, workspace_id, llm_engine='openai', embeddings_engine='openai'):
+    """
+    this should be splitted into sub-functions and placed in DBHandler.py
+    """
     OPENAI_API_KEY = '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'
     if llm_engine == 'openai':
         llm = OpenAI(openai_api_key=OPENAI_API_KEY)
@@ -97,6 +103,9 @@ def create_chatbot(db_constants, org_id, workspace_id, llm_engine='openai', embe
 
 
 def rephrase_question(chat_history, question, llm_engine='openai'):
+    """
+    i placed it in helpers.py
+    """
     OPENAI_API_KEY = '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'
     prompt = """
             Given a chat history and the latest user question which might reference context in the chat history,
@@ -123,6 +132,9 @@ def rephrase_question(chat_history, question, llm_engine='openai'):
 
 
 def get_or_create_chat_history(db_constants, org_id, workspace_id):
+    """
+    moved to DBHandler.py
+    """
     client = MongoClient(db_constants['connection_string'])
     chat_histories = client[db_constants['db']][db_constants['histories_collection']]
     history = chat_histories.find_one({'_id': f'{org_id}_{workspace_id}_chat_history'})
@@ -134,6 +146,9 @@ def get_or_create_chat_history(db_constants, org_id, workspace_id):
 
 
 def update_chat_history(db_constants, org_id, workspace_id, chat_history):
+    """
+    moved to DBHandler.py
+    """
     client = MongoClient(db_constants['connection_string'])
     chat_histories = client[db_constants['db']][db_constants['histories_collection']]
 
@@ -143,6 +158,9 @@ def update_chat_history(db_constants, org_id, workspace_id, chat_history):
 
 
 def interact(qa, question, db_constants, org_id, workspace_id):
+    """
+    moved to DBHandler.py
+    """
     chat_history = get_or_create_chat_history(db_constants, org_id, workspace_id)
 
     standalone_question = rephrase_question(chat_history, question)
@@ -154,6 +172,9 @@ def interact(qa, question, db_constants, org_id, workspace_id):
 
 
 def reset_chat_history(db_constants, org_id, workspace_id):
+    """
+    moved to DBHandler.py
+    """
     client = MongoClient(db_constants['connection_string'])
     chat_histories = client[db_constants['db']][db_constants['histories_collection']]
     chat_histories.update_one({'_id': f'{org_id}_{workspace_id}_chat_history'}, {'$set': {'chat_history': []}})
