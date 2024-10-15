@@ -1,3 +1,7 @@
 ".idea/"
 ".idea/" 
-"backup/" 
+"backup/"
+*.DS_Store
+*.idea/
+*.env
+__pycache__/
