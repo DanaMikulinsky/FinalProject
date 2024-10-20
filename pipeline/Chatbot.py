@@ -94,7 +94,6 @@ class Chatbot:
 				the context that is provided in the chat history.
 				If the user's question is already standalone, just return it as it is.
 				Chat history: {chat_history[-history_length:]}
-				{self.style_instructions}
 				"""
 		response = self.interact(prompt)
 		return response
@@ -152,7 +151,7 @@ class Chatbot:
 					If you are unable to answer the question based on the context provided, you can ask for more information.
 					User's question: {rephrased_query}
 					Context: {context}
-					Special instructions: write your responses in a {self.style} style.
+					{self.style_instructions}
 					"""
 
 		response = self.interact(rag_prompt)
