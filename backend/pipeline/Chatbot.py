@@ -123,6 +123,8 @@ class Chatbot:
 		Args:
 			query (str): The user's question
 			similarity_threshold (float): The similarity threshold to consider a chunk relevant
+		Returns:
+			str: The relevant context
 		"""
 		query_vector = self.google_embedding(query)
 		relevant_chunks = self.db_handler.search(query_vector)
