@@ -15,6 +15,7 @@ class DBHandler:
 		"""
 		Initialize the DBHandler class
 		Args:
+			org_id (str): The name of the collection containing the embeddings
 			user_id (str): The name of the collection containing the chat histories
 			connection_string (str): The connection string to the MongoDB database
 		Raises:
