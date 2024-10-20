@@ -11,7 +11,7 @@ load_dotenv()
 
 
 class DBHandler:
-	def __init__(self, user_id: str, connection_string: Union[str, None] = None):
+	def __init__(self, org_id: str, user_id: str, connection_string: Union[str, None] = None):
 		"""
 		Initialize the DBHandler class
 		Args:
@@ -35,8 +35,10 @@ class DBHandler:
 		except Exception as e:
 			raise f'An error occurred while trying to connect to the database: {e}'
 
+		self.org_id = org_id
+		self.embeddings_collection = self.client[self.embeddings_db][org_id]
+
 		self.user_id = user_id
-		self.embeddings_collection = self.client[self.embeddings_db][user_id]
 		self.history_collection = self.client[self.histories_db][user_id]
 
 	def get_history(self) -> list:
@@ -151,5 +153,5 @@ class DBHandler:
 		return results_to_return
 
 	def __repr__(self):
-		return f'DBHandler(user_id={self.user_id})'
+		return f'DBHandler(org_id={self.org_id}, user_id={self.user_id})'
 

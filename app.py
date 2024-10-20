@@ -25,12 +25,15 @@ def create_chatbot():
         data = request.get_json()
         if data:
             print(data)
+            org_id = data.get('org_id')
             user_id = data.get('user_id')
-            db_handler = DBHandler(user_id)
-            chatbot = Chatbot(db_handler)
+            style = data.get('style')
+            db_handler = DBHandler(org_id, user_id)
+            chatbot = Chatbot(db_handler, style)
 
             to_return = {
                 'message': 'Chatbot created',
+                'org_id': org_id,
                 'user_id': user_id,
                 'chat': chatbot.__repr__(),
                 'db': db_handler.__repr__()
@@ -41,7 +44,7 @@ def create_chatbot():
 
 
 @app.route('/api/get_history', methods=['GET'])
-def send_favorites():
+def get_history():
     global db_handler
 
     if request.method != 'GET':
@@ -54,6 +57,37 @@ def send_favorites():
             return jsonify({'history': history})
 
 
+@app.route('/api/ask_question', methods=['POST'])
+def ask_question():
+    global chatbot
+
+    if request.method != 'POST':
+        return jsonify({'error': 'Only POST requests are allowed'})
+    else:
+        if not chatbot:
+            return jsonify({'error': 'Chatbot not created yet'})
+        else:
+            data = request.get_json()
+            if data:
+                question = data.get('question')
+                response = chatbot.ask_question(question)
+                return jsonify({'response': response})
+            else:
+                return jsonify({'error': 'No data provided'})
+
+
+@app.route('/api/reset_history', methods=['DELETE'])
+def reset_history():
+    global db_handler
+
+    if request.method != 'DELETE':
+        return jsonify({'error': 'Only DELETE requests are allowed'})
+    else:
+        if not db_handler:
+            return jsonify({'error': 'Chatbot not created yet'})
+        else:
+            db_handler.reset_history()
+            return jsonify({'message': 'Chat history reset'})
 
 
 if __name__ == '__main__':

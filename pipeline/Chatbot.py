@@ -19,6 +19,7 @@ class Chatbot:
 		Initializes the Chat object
 		Args:
 			db_handler (DBHandler): The database handler object
+			style (str): The style of the chatbot's answers, chosen from the styles bank
 			llm_model_name (str): The name of the model to use
 			embedding_model_name (str): the name of the model to use for the embedding, either 'models/text-embedding-004' or 'models/embedding-001'
 		Raises:
@@ -172,6 +173,6 @@ class Chatbot:
 		return response
 
 	def __repr__(self):
-		return (f'Chat(user_id={self.db_handler.user_id}, llm_model_name={self.llm.model_name},'
+		return (f'Chat(org_id={self.db_handler.org_id}, user_id={self.db_handler.user_id}, llm_model_name={self.llm.model_name},'
 				f'embedding_model_name={self.embedding_model_name})')
 
