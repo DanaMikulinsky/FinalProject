@@ -1,5 +1,6 @@
 import warnings
 from pipeline.DBHandler import DBHandler
+from utils.helpers import get_style_instructions
 
 import google.generativeai as genai
 
@@ -32,13 +33,11 @@ class Chatbot:
 		else:
 			self.db_handler = db_handler
 
-		# Validate the style
-		if not isinstance(style, str):
-			raise ValueError('Style must be a string')
+		# Set the style of the chatbot's answers
+		if style == '':
+			self.style_instructions = '\n'
 		else:
-			if style not in ['friendly', 'professional']:
-				raise ValueError('Style must be either "friendly" or "professional"')
-			self.style = style
+			self.style_instructions = get_style_instructions(style)
 
 		# Initialize the LLM
 		possible_models = []
@@ -95,6 +94,7 @@ class Chatbot:
 				the context that is provided in the chat history.
 				If the user's question is already standalone, just return it as it is.
 				Chat history: {chat_history[-history_length:]}
+				{self.style_instructions}
 				"""
 		response = self.interact(prompt)
 		return response
