@@ -2,7 +2,7 @@
 This class is for reading, pre-proccessing and loading the documents into the system
 """
 
-from dbHandler import DBHandler
+from DBHandler import DBHandler
 import os
 
 db_handler = DBHandler()
