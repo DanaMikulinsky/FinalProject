@@ -1,5 +1,5 @@
 import warnings
-from DBHandler import DBHandler
+from pipeline.DBHandler import DBHandler
 
 import google.generativeai as genai
 
@@ -59,9 +59,12 @@ class Chatbot:
 		except Exception as e:
 			raise RuntimeError(f'Error interacting with model: {e}')
 
-	def rephrase_question(self, query: str) -> str:
+	def rephrase_question(self, query: str, history_length: int = 5) -> str:
 		"""
 		Rephrases the last user's question as a standalone question
+		Args:
+			query (str): The user's question
+			history_length (int): The number of messages to consider in the chat history
 		Returns:
 			str: The rephrased question
 		Raises:
@@ -78,7 +81,7 @@ class Chatbot:
 				Your job is to rephrase the last user's question as a standalone question that can be understood without
 				the context that is provided in the chat history.
 				If the user's question is already standalone, just return it as it is.
-				Chat history: {chat_history[-5:]}
+				Chat history: {chat_history[-history_length:]}
 				"""
 		response = self.interact(prompt)
 		return response
@@ -101,21 +104,21 @@ class Chatbot:
 
 		return embedding['embedding']
 
-	def answer_question(self, query: str) -> str:
+	def answer_question(self, query: str, similarity_threshold: float = 0.3) -> str:
 		"""
 		Run a user's question through the RAG pipeline and return the answer
 		Args:
 			query (str): The user's question
+			similarity_threshold (float): The minimum similarity score to consider a chunk relevant
 		Returns:
 			str: The answer to the user's question
 		"""
 		rephrased_query = self.rephrase_question(query)
-
 		query_vector = self.google_embedding(rephrased_query)
 		relevant_chunks = self.db_handler.search(query_vector)
 		if relevant_chunks:
 			# Todo: Improve the logic for selecting the context
-			context = '\n\n\n'.join([chunk['text'] for chunk in relevant_chunks if chunk['score'] > 0.3])
+			context = '\n\n\n'.join([chunk['text'] for chunk in relevant_chunks if chunk['score'] > similarity_threshold])
 		else:
 			warnings.warn('No relevant context found in the database')
 			context = ''
@@ -147,3 +150,4 @@ class Chatbot:
 	def __repr__(self):
 		return (f'Chat(user_id={self.db_handler.user_id}, llm_model_name={self.llm.model_name},'
 				f'embedding_model_name={self.embedding_model_name})')
+
