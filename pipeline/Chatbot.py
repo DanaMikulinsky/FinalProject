@@ -12,12 +12,12 @@ genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
 
 class Chatbot:
 	# Todo: Support multiple LLMs
-	def __init__(self, user_id: str, llm_model_name: str = 'gemini-1.5-flash',
+	def __init__(self, db_handler: DBHandler, style: str = '', llm_model_name: str = 'gemini-1.5-flash',
 				 embedding_model_name: str = 'models/text-embedding-004'):
 		"""
 		Initializes the Chat object
 		Args:
-			user_id (str): The user id, used to connect to the correct collections in the database
+			db_handler (DBHandler): The database handler object
 			llm_model_name (str): The name of the model to use
 			embedding_model_name (str): the name of the model to use for the embedding, either 'models/text-embedding-004' or 'models/embedding-001'
 		Raises:
@@ -25,7 +25,20 @@ class Chatbot:
 			ValueError: If the model name is not supported
 			RuntimeError: If there was an error initializing the model
 		"""
-		self.db_handler = DBHandler(user_id, os.getenv('MONGODB_CONNECTION_STRING'))
+
+		# Validate the db_handler
+		if not isinstance(db_handler, DBHandler):
+			raise ValueError('db_handler must be an instance of DBHandler')
+		else:
+			self.db_handler = db_handler
+
+		# Validate the style
+		if not isinstance(style, str):
+			raise ValueError('Style must be a string')
+		else:
+			if style not in ['friendly', 'professional']:
+				raise ValueError('Style must be either "friendly" or "professional"')
+			self.style = style
 
 		# Initialize the LLM
 		possible_models = []
@@ -126,10 +139,12 @@ class Chatbot:
 		rag_prompt = f"""
 					You are a health care provider's assistant. Your job is to answer the user's question based only on
 					the provided context.
-					Write your responses as if you are answering the user's question directly and the context is your knowledge base.
+					When answering questions, respond directly and confidently without mentioning any context or sources.
+					Under no circumstances should you include sentences like "in the context provided" or "based on the information given".
 					If you are unable to answer the question based on the context provided, you can ask for more information.
 					User's question: {rephrased_query}
 					Context: {context}
+					Special instructions: write your responses in a {self.style} style.
 					"""
 
 		response = self.interact(rag_prompt)
