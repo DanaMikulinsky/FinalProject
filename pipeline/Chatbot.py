@@ -124,7 +124,9 @@ class Chatbot:
 			context = ''
 
 		rag_prompt = f"""
-					Your job is to answer the user's question based only on the context provided in the chat history.
+					You are a health care provider's assistant. Your job is to answer the user's question based only on
+					the provided context.
+					Write your responses as if you are answering the user's question directly and the context is your knowledge base.
 					If you are unable to answer the question based on the context provided, you can ask for more information.
 					User's question: {rephrased_query}
 					Context: {context}
