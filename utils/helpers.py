@@ -26,9 +26,10 @@ def get_style_instructions(style: str) -> str:
                     'Use phrases like Let me clarify this for you or It\'s important to know that...'
                     'to guide them through the information.')
         elif style == 'emoji':
-            return ('When responding to younger users, adopt a friendly and engaging tone.'
+            return ('When responding to younger users, adopt a friendly and engaging tone and use Emojis.'
                     'Use clear explanations while incorporating some light slang to create a relatable vibe.'
-                    'Use emojis to enhance engagement and express warmth, fun and approachable.')
+                    'Include emojis after certain words where appropriate.'
+                    'For example, use 🍔 for food, 🏥 for healthcare, 💡 for ideas, and 🧑‍⚕️ for doctors.')
         elif style == 'rhymes':
             return ('When responding, use rhymes to make the conversation fun and engaging.'
                     'Create playful and light-hearted responses to keep the user entertained.'
