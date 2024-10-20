@@ -117,6 +117,18 @@ class Chatbot:
 
 		return embedding['embedding']
 
+	def get_relevant_chunks(self, query: str) -> list:
+		"""
+		Gets the relevant chunks from the database
+		Args:
+			query (str): The user's question
+			similarity_threshold (float): The similarity threshold to consider a chunk relevant
+		Returns:
+			relevant_chunks (list): A list of relevant chunks
+		"""
+		query_vector = self.google_embedding(query)
+		return self.db_handler.search(query_vector)
+
 	def get_relevant_context(self, query: str, similarity_threshold: float = 0.3) -> str:
 		"""
 		Gets the relevant context from the database
@@ -126,8 +138,7 @@ class Chatbot:
 		Returns:
 			str: The relevant context
 		"""
-		query_vector = self.google_embedding(query)
-		relevant_chunks = self.db_handler.search(query_vector)
+		relevant_chunks = self.get_relevant_chunks(query)
 		if relevant_chunks:
 			# Todo: Improve the logic for selecting the context
 			context = '\n\n\n'.join([chunk['text'] for chunk in relevant_chunks if chunk['score'] > similarity_threshold])
