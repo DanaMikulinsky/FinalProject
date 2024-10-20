@@ -117,17 +117,14 @@ class Chatbot:
 
 		return embedding['embedding']
 
-	def answer_question(self, query: str, similarity_threshold: float = 0.3) -> str:
+	def get_relevant_context(self, query: str, similarity_threshold: float = 0.3) -> str:
 		"""
-		Run a user's question through the RAG pipeline and return the answer
+		Gets the relevant context from the database
 		Args:
 			query (str): The user's question
-			similarity_threshold (float): The minimum similarity score to consider a chunk relevant
-		Returns:
-			str: The answer to the user's question
+			similarity_threshold (float): The similarity threshold to consider a chunk relevant
 		"""
-		rephrased_query = self.rephrase_question(query)
-		query_vector = self.google_embedding(rephrased_query)
+		query_vector = self.google_embedding(query)
 		relevant_chunks = self.db_handler.search(query_vector)
 		if relevant_chunks:
 			# Todo: Improve the logic for selecting the context
@@ -135,7 +132,18 @@ class Chatbot:
 		else:
 			warnings.warn('No relevant context found in the database')
 			context = ''
+		return context
 
+	def answer_question(self, query: str) -> str:
+		"""
+		Run a user's question through the RAG pipeline and return the answer
+		Args:
+			query (str): The user's question
+		Returns:
+			str: The answer to the user's question
+		"""
+		rephrased_query = self.rephrase_question(query)
+		context = self.get_relevant_context(rephrased_query)
 		rag_prompt = f"""
 					You are a health care provider's assistant. Your job is to answer the user's question based only on
 					the provided context.
