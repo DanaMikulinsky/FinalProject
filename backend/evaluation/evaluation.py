@@ -1,18 +1,27 @@
 from pipeline.Chatbot import Chatbot
+from pipeline.DBHandler import DBHandler
 from sklearn.metrics.pairwise import cosine_similarity
-from bert_score import score
 import pandas as pd
 import spacy
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+from cohere import Client
+from sklearn.metrics import precision_score, recall_score, f1_score
+import numpy as np
+
 
 class Evaluator:
-    def __init__(self, user_id, llm_model_name, embedding_model_name):
-        self.chatbot = Chatbot(user_id, llm_model_name, embedding_model_name)
+    def __init__(self, db_handler: DBHandler):
+        self.chatbot = Chatbot(db_handler)
         self.nlp = spacy.load("en_core_web_sm")
+        self.cohere_client = Client(os.getenv('COHERE_API_KEY'))
 
     def evaluate(self, ground_truth_data):
         results = pd.DataFrame(columns=['question', 'true_answer', 'chatbot_answer', 'cosine_similarity',
-                                        'bert_score', 'correctness_score', 'faithfulness_score'])
+                                        'correctness_score', 'faithfulness_score', 'retriever_scores'])
         for question, true_answer in ground_truth_data:
             chatbot_answer = self.chatbot.answer_question(question)
             result = self.compare_answers(question, true_answer, chatbot_answer)
@@ -47,12 +56,24 @@ class Evaluator:
         chatbot_embedding = self.chatbot.google_embedding(chatbot_answer)
         return cosine_similarity([true_embedding], [chatbot_embedding])[0][0]
 
-    def get_bert_score(self, true_answer, chatbot_answer):
-        P, R, F1 = score([chatbot_answer], [true_answer], lang="en", verbose=False)
+    def get_retriever_score(self, question, true_answer):
+        """
+        iterate over all chunks in the db, and mark the chunk that were retrieved by the retriever.
+        prompt cohere to grade each chunk as relevant or not.
+        precision - how many of the retrieved chunks are relevant
+        recall - how many of the relevant chunks were retrieved
+        f1 - harmonic mean of precision and recall
+        """
+        retrieved_chunks = [chunk['text'] for chunk in self.chatbot.get_relevant_chunks(question)]
+        embeddings_collection = self.chatbot.db_handler.embeddings_collection.find()
+        all_chunks = [chunk['text'] for chunk in embeddings_collection]
+
+        #TODO: finish this!
+
         return {
-            'precision': P.item(),
-            'recall': R.item(),
-            'f1': F1.item()
+            'precision': precision,
+            'recall': recall,
+            'f1': f1
         }
 
     def get_faithfulness_score(self, question, chatbot_answer):
@@ -68,8 +89,8 @@ class Evaluator:
 
     def compare_answers(self, question, true_answer, chatbot_answer):
         return {
+            'retriever_scores': self.get_retriever_score(question, true_answer),
             'cosine_similarity': self.get_cosine_similarity(true_answer, chatbot_answer),
-            'bert_score': self.get_bert_score(true_answer, chatbot_answer),
             'correctness_score': self.get_correctness_score(true_answer, chatbot_answer),
             'faithfulness_score': self.get_faithfulness_score(question, chatbot_answer)
         }

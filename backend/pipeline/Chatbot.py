@@ -117,6 +117,18 @@ class Chatbot:
 
 		return embedding['embedding']
 
+	def get_relevant_chunks(self, query: str) -> list:
+		"""
+		Gets the relevant chunks from the database
+		Args:
+			query (str): The user's question
+			similarity_threshold (float): The similarity threshold to consider a chunk relevant
+		Returns:
+			relevant_chunks (list): A list of relevant chunks
+		"""
+		query_vector = self.google_embedding(query)
+		return self.db_handler.search(query_vector)
+
 	def get_relevant_context(self, query: str, similarity_threshold: float = 0.3) -> str:
 		"""
 		Gets the relevant context from the database
@@ -126,8 +138,7 @@ class Chatbot:
 		Returns:
 			str: The relevant context
 		"""
-		query_vector = self.google_embedding(query)
-		relevant_chunks = self.db_handler.search(query_vector)
+		relevant_chunks = self.get_relevant_chunks(query)
 		if relevant_chunks:
 			# Todo: Improve the logic for selecting the context
 			context = '\n\n\n'.join([chunk['text'] for chunk in relevant_chunks if chunk['score'] > similarity_threshold])
@@ -149,9 +160,12 @@ class Chatbot:
 		rag_prompt = f"""
 					You are a health care provider's assistant. Your job is to answer the user's question based only on
 					the provided context.
+					If you are unable to answer the question based only on the relevant context provided, you can ask for more 
+					information or said that you are unable to answer the question. Do not base on any other previous knowledge.
 					When answering questions, respond directly and confidently without mentioning any context or sources.
+					Under no circumstances should you mention, refer to, or indicate that you're answering based on
+					context, context provided, provided information or lack of information in the context.
 					Under no circumstances should you include sentences like "in the context provided" or "based on the information given".
-					If you are unable to answer the question based on the context provided, you can ask for more information.
 					User's question: {rephrased_query}
 					Context: {context}
 					{self.style_instructions}
