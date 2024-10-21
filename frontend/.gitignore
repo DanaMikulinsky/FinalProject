@@ -1,11 +1,4 @@
-".idea/"
-".idea/" 
-"backup/"
-*.DS_Store
-*.idea/
-*.env
-__pycache__/
-
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 /node_modules
@@ -28,7 +21,3 @@ __pycache__/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-
-.idea/misc.xml
-src/dev/
