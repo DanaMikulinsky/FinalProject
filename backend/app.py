@@ -57,7 +57,7 @@ def get_history():
             return jsonify({'history': history})
 
 
-@app.route('/api/ask_question', methods=['POST'])
+@app.route('/api/answer_question', methods=['POST'])
 def ask_question():
     global chatbot
 
@@ -70,8 +70,8 @@ def ask_question():
             data = request.get_json()
             if data:
                 question = data.get('question')
-                response = chatbot.ask_question(question)
-                return jsonify({'response': response})
+                answer = chatbot.answer_question(question)
+                return jsonify({'answer': answer})
             else:
                 return jsonify({'error': 'No data provided'})
 
