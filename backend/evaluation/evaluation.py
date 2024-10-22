@@ -1,16 +1,16 @@
-from pipeline.Chatbot import Chatbot
-from pipeline.DBHandler import DBHandler
+from backend.pipeline.Chatbot import Chatbot
+from backend.pipeline.DBHandler import DBHandler
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import spacy
+import warnings
+import time
 
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
 from cohere import Client
-from sklearn.metrics import precision_score, recall_score, f1_score
-import numpy as np
 
 
 class Evaluator:
@@ -29,6 +29,7 @@ class Evaluator:
             result['true_answer'] = true_answer
             result['chatbot_answer'] = chatbot_answer
             enrty_to_add = pd.DataFrame([result])
+            warnings.simplefilter(action='ignore', category=FutureWarning)
             results = pd.concat([results, enrty_to_add], ignore_index=True)
         return results
 
@@ -56,19 +57,56 @@ class Evaluator:
         chatbot_embedding = self.chatbot.google_embedding(chatbot_answer)
         return cosine_similarity([true_embedding], [chatbot_embedding])[0][0]
 
-    def get_retriever_score(self, question, true_answer):
-        """
-        iterate over all chunks in the db, and mark the chunk that were retrieved by the retriever.
-        prompt cohere to grade each chunk as relevant or not.
-        precision - how many of the retrieved chunks are relevant
-        recall - how many of the relevant chunks were retrieved
-        f1 - harmonic mean of precision and recall
-        """
-        retrieved_chunks = [chunk['text'] for chunk in self.chatbot.get_relevant_chunks(question)]
-        embeddings_collection = self.chatbot.db_handler.embeddings_collection.find()
-        all_chunks = [chunk['text'] for chunk in embeddings_collection]
+    import time
+    from math import ceil
 
-        #TODO: finish this!
+    def get_retriever_score(self, question, limit=40):
+        """
+        Iterate over all chunks in the db, and mark the chunk that were retrieved by the retriever.
+        Prompt Cohere to grade each chunk as relevant or not.
+        Precision - how many of the retrieved chunks are relevant
+        Recall - how many of the relevant chunks were retrieved
+        F1 - harmonic mean of precision and recall
+        """
+        embeddings_collection = self.chatbot.db_handler.embeddings_collection.find()
+        all_chunks_text = [chunk['text'] for chunk in embeddings_collection]
+        all_chunks_id = [str(chunk['_id']) for chunk in embeddings_collection]
+        retrieved_chunks_id = [str(chunk['_id']) for chunk in self.chatbot.get_relevant_chunks(question)]
+
+        #TODO: Implement the following logic
+        # Prompt Cohere to grade each chunk as relevant to the question or not:
+        # a single prompt is passed with the question and a chunk and asks:
+        # "Is this chunk relevant to the question? Answer 'yes' or 'no'."
+        # we will iterate over all chunks and ask Cohere to grade each one
+        # we will set a timer to wait for a minute after every 40 prompts to avoid rate limiting
+        # for each chunk that was graded as relevant, we will add its id to the relevant_chunks_id list
+        relevant_chunks_id = []
+        for i, chunk_text in enumerate(all_chunks_text):
+            prompt = (f"Is this chunk of text relevant to the question? Answer 'yes' or 'no'."
+                      f"Question: {question}, Chunk: {chunk_text}"))
+            response = self.cohere_client.generate(
+                model='command',
+                prompt=prompt,
+                max_tokens=5,
+                temperature=0.0,
+                num_generations=1,
+                stop_sequences=["\n\n"],
+                truncate='END'
+            )
+            if response['answer'].lower() == 'yes':
+                relevant_chunks_id.append(all_chunks_id[i])
+            if (i + 1) % limit == 0:
+                time.sleep(60)
+
+
+        # Calculate precision, recall, f1
+        true_positives = len(set(retrieved_chunks_id).intersection(relevant_chunks_id))
+        false_positives = len(set(retrieved_chunks_id).difference(relevant_chunks_id))
+        false_negatives = len(set(relevant_chunks_id).difference(retrieved_chunks_id))
+
+        precision = true_positives / (true_positives + false_positives) if true_positives + false_positives > 0 else 0
+        recall = true_positives / (true_positives + false_negatives) if true_positives + false_negatives > 0 else 0
+        f1 = 2 * (precision * recall) / (precision + recall) if precision + recall > 0 else 0
 
         return {
             'precision': precision,
@@ -89,7 +127,7 @@ class Evaluator:
 
     def compare_answers(self, question, true_answer, chatbot_answer):
         return {
-            'retriever_scores': self.get_retriever_score(question, true_answer),
+            'retriever_scores': self.get_retriever_score(question),
             'cosine_similarity': self.get_cosine_similarity(true_answer, chatbot_answer),
             'correctness_score': self.get_correctness_score(true_answer, chatbot_answer),
             'faithfulness_score': self.get_faithfulness_score(question, chatbot_answer)
