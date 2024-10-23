@@ -41,24 +41,26 @@ class Evaluator:
         return results
 
     def get_correctness_score(self, true_answer, chatbot_answer):
-        # Semantic similarity (already implemented)
-        cosine_sim = self.get_cosine_similarity(true_answer, chatbot_answer)
+        try:
+            # Semantic similarity (already implemented)
+            cosine_sim = self.get_cosine_similarity(true_answer, chatbot_answer)
 
-        # Keyword matching
-        true_keywords = set(self.nlp(true_answer).noun_chunks)
-        chatbot_keywords = set(self.nlp(chatbot_answer).noun_chunks)
-        keyword_overlap = len(true_keywords.intersection(chatbot_keywords)) / len(true_keywords)
+            # Keyword matching
+            true_keywords = set(self.nlp(true_answer).noun_chunks)
+            chatbot_keywords = set(self.nlp(chatbot_answer).noun_chunks)
+            keyword_overlap = len(true_keywords.intersection(chatbot_keywords)) / len(true_keywords)
 
-        # Named Entity Recognition
-        true_entities = set([ent.text for ent in self.nlp(true_answer).ents])
-        chatbot_entities = set([ent.text for ent in self.nlp(chatbot_answer).ents])
-        entity_overlap = len(true_entities.intersection(chatbot_entities)) / len(
-            true_entities) if true_entities else 1.0
+            # Named Entity Recognition
+            true_entities = set([ent.text for ent in self.nlp(true_answer).ents])
+            chatbot_entities = set([ent.text for ent in self.nlp(chatbot_answer).ents])
+            entity_overlap = len(true_entities.intersection(chatbot_entities)) / len(
+                true_entities) if true_entities else 1.0
 
-        # Combine scores (you can adjust weights)
-        correctness_score = (cosine_sim + keyword_overlap + entity_overlap) / 3
-        return correctness_score
-
+            # Combine scores (you can adjust weights)
+            correctness_score = (cosine_sim + keyword_overlap + entity_overlap) / 3
+            return correctness_score
+        except Exception as e:
+            return "failed to calculate dut to: " + str(e)
     def get_cosine_similarity(self, true_answer, chatbot_answer):
         true_embedding = self.chatbot.google_embedding(true_answer)
         chatbot_embedding = self.chatbot.google_embedding(chatbot_answer)
