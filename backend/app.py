@@ -1,7 +1,8 @@
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from pipeline.Chatbot import Chatbot, DBHandler
+from backend.pipeline.Chatbot import Chatbot
+from backend.pipeline.DBHandler import DBHandler
 
 from dotenv import load_dotenv
 load_dotenv()

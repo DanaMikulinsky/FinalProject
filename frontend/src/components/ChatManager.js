@@ -21,7 +21,7 @@ export default function ChatManager() {
             gap: '25px'
         }}>
             <Typography variant={'h1'}  style={{color: '#006D77', marginTop: '10px', fontFamily: 'Cookie'}}>
-                ChatBot Yo
+                MoodiBot
             </Typography>
             <Chat
                 setStarted={setStarted}

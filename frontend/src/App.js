@@ -1,8 +1,7 @@
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
 
-import './App.css';
-import Chat from "./components/Chat";
-import ChatManager from "./components/ChatManager";
+import './App.css'
+import ChatManager from "./components/ChatManager"
 
 export default function App() {
   return (
@@ -10,7 +9,6 @@ export default function App() {
           <Router>
               <Routes>
                   <Route path={'/'} element={<ChatManager />} />
-                  <Route path='/chat' element={<Chat/>}/>
               </Routes>
           </Router>
       </div>

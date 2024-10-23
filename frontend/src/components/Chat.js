@@ -1,29 +1,19 @@
-import React, { useEffect, useState } from "react";
-import {
-    Box,
-    Typography,
-    Avatar,
-    TextField,
-    Button,
-    Paper,
-    Container,
-    Grid,
-    styled,
-} from "@mui/material";
-import { IoSendSharp } from "react-icons/io5";
+import React, {useEffect, useState} from "react";
+import {Avatar, Box, Button, Container, Grid, Paper, styled, TextField, Typography,} from "@mui/material";
 
-const ChatContainer = styled(Paper)(({ theme }) => ({
+import RefreshIcon from '@mui/icons-material/Refresh'
+import {IoSendSharp} from "react-icons/io5"
+
+const ChatContainer = styled(Paper)(({theme}) => ({
     padding: theme.spacing(2),
     borderRadius: theme.spacing(2),
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     background: "linear-gradient(#83C5BE, #EDF6F9, #83C5BE);",
-
-// backgroundImage: "url('https://images.unsplash.com/photo-1557683311-eac922347aa1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1129&q=80')",
     backgroundSize: "cover",
     backgroundPosition: "center"
 }));
 
-const MessageBubble = styled(Box)(({ theme, isOutgoing }) => ({
+const MessageBubble = styled(Box)(({theme, isOutgoing}) => ({
     maxWidth: "70%",
     padding: theme.spacing(1, 2),
     borderRadius: theme.spacing(2),
@@ -39,13 +29,12 @@ const MessageBubble = styled(Box)(({ theme, isOutgoing }) => ({
     }
 }));
 
-export default function Chat({ setStarted, chatStyle, setChatStyle}) {
+export default function Chat({setStarted, chatStyle, setChatStyle}) {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [currentId, setCurrentId] = useState(1);
-    const [messages, setMessages] = useState([
-    ]);
+    const [messages, setMessages] = useState([]);
 
     useEffect(() => {
         let objDiv = document.getElementById("chat");
@@ -54,7 +43,7 @@ export default function Chat({ setStarted, chatStyle, setChatStyle}) {
 
     useEffect(() => {
         setIsLoading(true);
-        fetch('http://localhost:5000/api/create_chatbot', {
+        fetch('http://localhost:8000/api/create_chatbot', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -66,6 +55,32 @@ export default function Chat({ setStarted, chatStyle, setChatStyle}) {
             })
         }).then((res) => setIsLoading(false));
     }, [chatStyle])
+
+    const handleResetClick = () => {
+        setMessages([]);
+        setCurrentId(1);
+        setStarted(false);
+
+        fetch('http://localhost:8000/api/reset_history', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                } else {
+                    console.log('Success:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Request failed:', error);
+            });
+
+
+    }
 
     const handleSendMessage = () => {
         setStarted(true);
@@ -83,7 +98,7 @@ export default function Chat({ setStarted, chatStyle, setChatStyle}) {
         const messagesUpdatedWithOutgoing = [...messages, newMessage];
         setMessages(messagesUpdatedWithOutgoing);
 
-        fetch('http://localhost:5000/api/answer_question', {
+        fetch('http://localhost:8000/api/answer_question', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -99,28 +114,27 @@ export default function Chat({ setStarted, chatStyle, setChatStyle}) {
                         id: currentId + 2,
                         text: response.answer,
                         isOutgoing: false
-                }]);
-                setIsLoading(false);
-                setCurrentId(currentId + 2);
-            })
-            );
+                    }]);
+                    setIsLoading(false);
+                    setCurrentId(currentId + 2);
+                })
+        );
         setMessage("");
     };
 
     return (
         <Container maxWidth="md">
             <ChatContainer elevation={2}>
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2}}>
+                    <Box sx={{display: "flex", alignItems: "center"}}>
                         <Avatar
                             alt="John Doe"
-                            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-                            sx={{ width: 48, height: 48, mr: 2 }}
+                            src="avatar.png"
+                            sx={{width: 48, height: 48, mr: 2}}
                         />
-                        <Typography variant="h6">The Maccabi Expert</Typography>
+                        <Typography variant="h6">Moodi</Typography>
                     </Box>
                 </Box>
-
 
                 <Box
                     sx={{
@@ -136,7 +150,8 @@ export default function Chat({ setStarted, chatStyle, setChatStyle}) {
                     id={'chat'}
                 >
                     {messages.map((msg) => (
-                        <MessageBubble key={msg.id} isOutgoing={msg.isOutgoing} style={msg.isOutgoing ? {backgroundColor: '#E29578'}: {}}>
+                        <MessageBubble key={msg.id} isOutgoing={msg.isOutgoing}
+                                       style={msg.isOutgoing ? {backgroundColor: '#E29578'} : {}}>
                             <Typography variant="body1">{msg.text}</Typography>
                         </MessageBubble>
                     ))}
@@ -158,20 +173,27 @@ export default function Chat({ setStarted, chatStyle, setChatStyle}) {
                             error={!!error}
                             helperText={error}
                             InputProps={{
-                                sx: { borderRadius: 4, backgroundColor: "white" }
+                                sx: {borderRadius: 4, backgroundColor: "white"}
                             }}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={3} className="send_rest_buttons">
                         <Button
                             fullWidth
                             variant="contained"
-                            endIcon={<IoSendSharp />}
+                            endIcon={<IoSendSharp/>}
                             onClick={handleSendMessage}
-                            sx={{ borderRadius: 4, height: "100%", backgroundColor: '#E29578' }}
+                            sx={{borderRadius: 4, height: "100%", backgroundColor: '#E29578', marginRight: 0.5}}
                             disabled={isLoading}
                         >
                             Send
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            sx={{borderRadius: 4, height: "100%", backgroundColor: '#E29578', marginLeft: 0.5}}
+                            onClick={handleResetClick}>
+                            <RefreshIcon/>
                         </Button>
                     </Grid>
                 </Grid>
