@@ -71,7 +71,7 @@ def answer_question():
             data = request.get_json()
             if data:
                 question = data.get('question')
-                answer = chatbot.answer_question(query=question)
+                answer = chatbot.answer_question(question)
                 return jsonify({'answer': answer})
             else:
                 return jsonify({'error': 'No data provided'})
