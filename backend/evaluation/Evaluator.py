@@ -5,12 +5,11 @@ import pandas as pd
 import spacy
 import warnings
 import time
+from cohere import Client
 
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
-from cohere import Client
 
 
 class Evaluator:
@@ -73,7 +72,7 @@ class Evaluator:
         all_chunks_id = [str(chunk['_id']) for chunk in embeddings_collection]
         retrieved_chunks_id = [str(chunk['_id']) for chunk in self.chatbot.get_relevant_chunks(question)]
 
-        #TODO: Implement the following logic
+        # TODO: Implement the following logic
         # Prompt Cohere to grade each chunk as relevant to the question or not:
         # a single prompt is passed with the question and a chunk and asks:
         # "Is this chunk relevant to the question? Answer 'yes' or 'no'."
@@ -83,7 +82,7 @@ class Evaluator:
         relevant_chunks_id = []
         for i, chunk_text in enumerate(all_chunks_text):
             prompt = (f"Is this chunk of text relevant to the question? Answer 'yes' or 'no'."
-                      f"Question: {question}, Chunk: {chunk_text}"))
+                      f"Question: {question}, Chunk: {chunk_text}")
             response = self.cohere_client.generate(
                 model='command',
                 prompt=prompt,
@@ -97,7 +96,6 @@ class Evaluator:
                 relevant_chunks_id.append(all_chunks_id[i])
             if (i + 1) % limit == 0:
                 time.sleep(60)
-
 
         # Calculate precision, recall, f1
         true_positives = len(set(retrieved_chunks_id).intersection(relevant_chunks_id))

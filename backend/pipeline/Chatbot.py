@@ -1,7 +1,6 @@
 import warnings
 from backend.pipeline.DBHandler import DBHandler
 from backend.utils.helpers import get_style_instructions
-
 import google.generativeai as genai
 
 import os

@@ -1,18 +1,17 @@
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 
-from dotenv import load_dotenv
-
 from pipeline.Chatbot import Chatbot, DBHandler
 
+from dotenv import load_dotenv
 load_dotenv()
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 db_handler = None
 chatbot = None
-
 
 # Initialize the Chatbot
 @app.route('/api/create_chatbot', methods=['POST'])
@@ -43,6 +42,7 @@ def create_chatbot():
             return jsonify({'error': 'No data provided'})
 
 
+# Get the chat history
 @app.route('/api/get_history', methods=['GET'])
 def get_history():
     global db_handler
@@ -57,8 +57,9 @@ def get_history():
             return jsonify({'history': history})
 
 
-@app.route('/api/ask_question', methods=['POST'])
-def ask_question():
+# Run the RAG pipeline
+@app.route('/api/answer_question', methods=['POST'])
+def answer_question():
     global chatbot
 
     if request.method != 'POST':
@@ -70,12 +71,13 @@ def ask_question():
             data = request.get_json()
             if data:
                 question = data.get('question')
-                response = chatbot.ask_question(question)
-                return jsonify({'response': response})
+                answer = chatbot.answer_question(query=question)
+                return jsonify({'answer': answer})
             else:
                 return jsonify({'error': 'No data provided'})
 
 
+# Reset the chat history
 @app.route('/api/reset_history', methods=['DELETE'])
 def reset_history():
     global db_handler
