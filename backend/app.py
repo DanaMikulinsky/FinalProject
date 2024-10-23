@@ -1,18 +1,17 @@
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 
-from dotenv import load_dotenv
-
 from pipeline.Chatbot import Chatbot, DBHandler
 
+from dotenv import load_dotenv
 load_dotenv()
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 db_handler = None
 chatbot = None
-
 
 # Initialize the Chatbot
 @app.route('/api/create_chatbot', methods=['POST'])
@@ -43,6 +42,7 @@ def create_chatbot():
             return jsonify({'error': 'No data provided'})
 
 
+# Get the chat history
 @app.route('/api/get_history', methods=['GET'])
 def get_history():
     global db_handler
@@ -57,8 +57,9 @@ def get_history():
             return jsonify({'history': history})
 
 
+# Run the RAG pipeline
 @app.route('/api/answer_question', methods=['POST'])
-def ask_question():
+def answer_question():
     global chatbot
 
     if request.method != 'POST':
@@ -76,6 +77,7 @@ def ask_question():
                 return jsonify({'error': 'No data provided'})
 
 
+# Reset the chat history
 @app.route('/api/reset_history', methods=['DELETE'])
 def reset_history():
     global db_handler

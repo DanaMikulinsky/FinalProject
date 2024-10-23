@@ -118,7 +118,7 @@ class DBHandler:
 			{
 				'$vectorSearch': {
 					'exact': False,
-					'index': 'maccabi_index',
+					'index': f'{self.org_id}_index',
 					'limit': n,
 					'numCandidates': n * 20,  # according to the documentation, should be 10-20 times the limit
 					'path': 'embedding',
@@ -127,7 +127,7 @@ class DBHandler:
 			},
 			{
 				'$project': {
-					'_id': 0,
+					'_id': 1,
 					'text': 1,
 					'embedding': 1,
 					'score': {
@@ -147,7 +147,8 @@ class DBHandler:
 			readable_result = {
 				'text': result['text'],
 				'embedding': result['embedding'],
-				'score': result['score']
+				'score': result['score'],
+				'_id': result['_id'],
 			}
 			results_to_return.append(readable_result)
 
