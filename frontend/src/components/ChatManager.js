@@ -30,8 +30,8 @@ export default function ChatManager() {
             />
 
             {!started && <div style={{display: "flex", alignItems: "center"}}>
-                <Typography variant={'h5'} style={{fontFamily: 'Cookie'}}>
-                    Choose style
+                <Typography variant={'h4'} style={{fontFamily: 'Cookie'}}>
+                    What's your mood?
                 </Typography>
                 <div>
                     {['default', 'rhymes', 'kids', 'elderly', 'emoji'].map(element =>
