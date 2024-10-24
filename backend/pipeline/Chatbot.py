@@ -157,14 +157,11 @@ class Chatbot:
 		rephrased_query = self.rephrase_question(query)
 		context = self.get_relevant_context(rephrased_query)
 		rag_prompt = f"""
-					You are a health care provider's assistant. Your job is to answer the user's question based only on
-					the provided context.
-					If you are unable to answer the question based only on the relevant context provided, you can ask for more 
-					information or said that you are unable to answer the question. Do not base on any other previous knowledge.
-					When answering questions, respond directly and confidently without mentioning any context or sources.
-					Under no circumstances should you mention, refer to, or indicate that you're answering based on
-					context, context provided, provided information or lack of information in the context.
-					Under no circumstances should you include sentences like "in the context provided" or "based on the information given".
+					You are a health care provider's assistant.
+					Answer the user's question based solely on the provided information.
+					If you can't answer, ask for more details or say you're unable to respond.
+					Do not reference context, sources, or previous knowledge in your answer.
+					Avoid phrases like "based on the information given" or anything that implies context awareness.
 					User's question: {rephrased_query}
 					Context: {context}
 					{self.style_instructions}
