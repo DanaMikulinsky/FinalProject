@@ -11,7 +11,8 @@ load_dotenv()
 
 
 class DBHandler:
-	def __init__(self, org_id: str, user_id: str, connection_string: Union[str, None] = None, search_method: str = 'approximate'):
+	def __init__(self, org_id: str, user_id: str, connection_string: Union[str, None] = None,
+				 search_method: str = 'approximate'):
 		"""
 		Initialize the DBHandler class
 		Args:
@@ -121,7 +122,7 @@ class DBHandler:
 				'exact': self.exact_search,
 				'index': f'{self.org_id}_index',
 				'limit': n,
-				'numCandidates': n * 20, # according to the documentation, should be 10-20 times the limit
+				'numCandidates': n * 20,  # according to the documentation, should be 10-20 times the limit
 				'path': 'embedding',
 				'queryVector': query_vector,
 			}
@@ -168,4 +169,3 @@ class DBHandler:
 
 	def __repr__(self):
 		return f'DBHandler(org_id={self.org_id}, user_id={self.user_id})'
-

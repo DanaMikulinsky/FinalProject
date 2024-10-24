@@ -2,6 +2,7 @@ import warnings
 from backend.pipeline.DBHandler import DBHandler
 from backend.utils.helpers import get_style_instructions
 import google.generativeai as genai
+from together import Together
 
 import os
 from dotenv import load_dotenv
@@ -40,22 +41,29 @@ class Chatbot:
 			self.style_instructions = get_style_instructions(style)
 
 		# Initialize the LLM
-		possible_models = ['models/cohere'] # we support cohere and all gemini models as possible
+		if not isinstance(llm_model_name, str):
+			raise ValueError('llm_model_name must be a string')
+		else:
+			self.llm_model_name = llm_model_name
+
+		possible_gemini_models = []
 		for option in genai.list_models():
 			if 'generateContent' in option.supported_generation_methods:
-				possible_models.append(option.name)
-		if isinstance(llm_model_name, str) and f'models/{llm_model_name}' not in possible_models:
-			raise ValueError(f'Model name must be one of the following: {possible_models}')
-		try:
-			if llm_model_name != 'cohere':
-				self.llm = genai.GenerativeModel(llm_model_name)
-			elif llm_model_name == 'cohere':
-				#self.llm = Client() how to init cohere client?
-				pass
-			else:
-				raise ValueError(f'Model name must be one of the following: {possible_models}')
-		except Exception as e:
-			raise RuntimeError(f'Error initializing model: {e}')
+				possible_gemini_models.append(option.name)
+		if isinstance(llm_model_name, str) and f'models/{llm_model_name}' in possible_gemini_models:
+			self.interact = self.google_interact
+		else:
+			try:
+				self.client = Together()
+				stream = self.client.chat.completions.create(
+					model=self.llm_model_name,
+					messages=[{"role": "user", "content": 'test'}],
+					stream=True,
+				)
+			except Exception as e:
+				raise ValueError(f'Error initializing model: {e}')
+
+			self.interact = self.together_interact
 
 		# Validate the embedding model name
 		if not embedding_model_name or embedding_model_name not in ['models/text-embedding-004',
@@ -63,7 +71,7 @@ class Chatbot:
 			raise ValueError('Invalid embedding model name')
 		self.embedding_model_name = embedding_model_name
 
-	def interact(self, query: str) -> str:
+	def together_interact(self, query: str) -> str:
 		"""
 		Interacts with the model
 		Args:
@@ -72,7 +80,31 @@ class Chatbot:
 			str: The response from the model
 		"""
 		try:
-			response = self.llm.generate_content(query)
+			stream = self.client.chat.completions.create(
+				model=self.llm_model_name,
+				messages=[{"role": "user", "content": query}],
+				stream=True,
+			)
+		except Exception as e:
+			raise ValueError(f'Error initializing model: {e}')
+
+		response = ''
+		for chunk in stream:
+			response += chunk.choices[0].delta.content or ""
+
+		return response
+
+	def google_interact(self, query: str) -> str:
+		"""
+		Interacts with the model
+		Args:
+			query (str): The query to interact with
+		Returns:
+			str: The response from the model
+		"""
+		llm = genai.GenerativeModel(self.llm_model_name)
+		try:
+			response = llm.generate_content(query)
 			return response.text.strip('\n').strip(' ')
 		except Exception as e:
 			raise RuntimeError(f'Error interacting with model: {e}')
@@ -146,7 +178,8 @@ class Chatbot:
 		relevant_chunks = self.get_relevant_chunks(query)
 		if relevant_chunks:
 			# Todo: Improve the logic for selecting the context
-			context = '\n\n\n'.join([chunk['text'] for chunk in relevant_chunks if chunk['score'] > similarity_threshold])
+			context = '\n\n\n'.join(
+				[chunk['text'] for chunk in relevant_chunks if chunk['score'] > similarity_threshold])
 		else:
 			warnings.warn('No relevant context found in the database')
 			context = ''
@@ -191,6 +224,6 @@ class Chatbot:
 		return response
 
 	def __repr__(self):
-		return (f'Chat(org_id={self.db_handler.org_id}, user_id={self.db_handler.user_id}, llm_model_name={self.llm.model_name},'
-				f'embedding_model_name={self.embedding_model_name})')
-
+		return (
+			f'Chat(org_id={self.db_handler.org_id}, user_id={self.db_handler.user_id}, llm_model_name={self.llm.model_name},'
+			f'embedding_model_name={self.embedding_model_name})')
