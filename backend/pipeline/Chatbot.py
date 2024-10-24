@@ -1,9 +1,11 @@
-import warnings
 from backend.pipeline.DBHandler import DBHandler
 from backend.utils.helpers import get_style_instructions
+
 import google.generativeai as genai
 from together import Together
+from sentence_transformers import SentenceTransformer
 
+import warnings
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -67,9 +69,12 @@ class Chatbot:
 
 		# Validate the embedding model name
 		if not embedding_model_name or embedding_model_name not in ['models/text-embedding-004',
-																	'models/embedding-001']:
+																	'models/embedding-001', 'cohere']:
 			raise ValueError('Invalid embedding model name')
-		self.embedding_model_name = embedding_model_name
+		elif embedding_model_name == 'cohere':
+			self.embedding = self.cohere_embedding
+		else:
+			self.embedding = self.google_embedding
 
 	def together_interact(self, query: str) -> str:
 		"""
@@ -154,6 +159,26 @@ class Chatbot:
 
 		return embedding['embedding']
 
+	def cohere_embedding(self, text: str) -> list:
+		"""
+		Use the Google Embedding API to embed the text
+		Args:
+			text (str): the text to embed
+		Returns:
+			embedding (list): the embedding vector of the text
+		Raises:
+			Exception: if there is an error in embedding the text
+		"""
+		model = SentenceTransformer('all-MiniLM-L6-v2')
+		try:
+			embedding = model.encode(text)
+		except Exception as e:
+			raise Exception(f'Error in embedding the text: {e}')
+
+		embedding_list = list(embedding)
+		embedding_to_return = [float(num) for num in embedding_list]
+		return embedding_to_return
+
 	def get_relevant_chunks(self, query: str) -> list:
 		"""
 		Gets the relevant chunks from the database
@@ -163,7 +188,7 @@ class Chatbot:
 		Returns:
 			relevant_chunks (list): A list of relevant chunks
 		"""
-		query_vector = self.google_embedding(query)
+		query_vector = self.embedding(query)
 		return self.db_handler.search(query_vector)
 
 	def get_relevant_context(self, query: str, similarity_threshold: float = 0.3) -> str:
