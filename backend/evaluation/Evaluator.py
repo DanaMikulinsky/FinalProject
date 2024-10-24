@@ -30,6 +30,7 @@ class Evaluator:
             warnings.simplefilter(action='ignore', category=FutureWarning)
             results = pd.concat([results, enrty_to_add], ignore_index=True)
             time.sleep(5)
+            self.chatbot.db_handler.reset_history()
         return results
 
     def get_correctness_score(self, true_answer, chatbot_answer):
