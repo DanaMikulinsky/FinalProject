@@ -40,14 +40,20 @@ class Chatbot:
 			self.style_instructions = get_style_instructions(style)
 
 		# Initialize the LLM
-		possible_models = []
+		possible_models = ['models/cohere'] # we support cohere and all gemini models as possible
 		for option in genai.list_models():
 			if 'generateContent' in option.supported_generation_methods:
 				possible_models.append(option.name)
-		if not llm_model_name and isinstance(llm_model_name, str) and f'models/{llm_model_name}' not in possible_models:
+		if isinstance(llm_model_name, str) and f'models/{llm_model_name}' not in possible_models:
 			raise ValueError(f'Model name must be one of the following: {possible_models}')
 		try:
-			self.llm = genai.GenerativeModel(llm_model_name)
+			if llm_model_name != 'cohere':
+				self.llm = genai.GenerativeModel(llm_model_name)
+			elif llm_model_name == 'cohere':
+				#self.llm = Client() how to init cohere client?
+				pass
+			else:
+				raise ValueError(f'Model name must be one of the following: {possible_models}')
 		except Exception as e:
 			raise RuntimeError(f'Error initializing model: {e}')
 

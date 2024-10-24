@@ -11,7 +11,7 @@ load_dotenv()
 
 
 class DBHandler:
-	def __init__(self, org_id: str, user_id: str, connection_string: Union[str, None] = None):
+	def __init__(self, org_id: str, user_id: str, connection_string: Union[str, None] = None, search_method: str = 'approximate'):
 		"""
 		Initialize the DBHandler class
 		Args:
@@ -25,6 +25,7 @@ class DBHandler:
 		# constants
 		self.embeddings_db = 'embeddings'
 		self.histories_db = 'histories'
+		self.exact_search = True if search_method == 'exact' else False
 
 		if not connection_string:
 			connection_string = os.getenv('MONGODB_CONNECTION_STRING')
@@ -114,16 +115,27 @@ class DBHandler:
 		Raises:
 			RuntimeError: If an error occurs while trying to search for similar embeddings
 		"""
+		if not self.exact_search:
+			# the parameter 'numCandidates' should be passed only for approximate search
+			vector_search_config = {
+				'exact': self.exact_search,
+				'index': f'{self.org_id}_index',
+				'limit': n,
+				'numCandidates': n * 20, # according to the documentation, should be 10-20 times the limit
+				'path': 'embedding',
+				'queryVector': query_vector,
+			}
+		else:
+			vector_search_config = {
+				'exact': self.exact_search,
+				'index': f'{self.org_id}_index',
+				'limit': n,
+				'path': 'embedding',
+				'queryVector': query_vector,
+			}
 		pipeline = [
 			{
-				'$vectorSearch': {
-					'exact': False,
-					'index': f'{self.org_id}_index',
-					'limit': n,
-					'numCandidates': n * 20,  # according to the documentation, should be 10-20 times the limit
-					'path': 'embedding',
-					'queryVector': query_vector,
-				}
+				'$vectorSearch': vector_search_config
 			},
 			{
 				'$project': {
