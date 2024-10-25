@@ -1,5 +1,5 @@
 from backend.pipeline.DBHandler import DBHandler
-from backend.utils.helpers import get_style_instructions
+from backend.utils.helpers import get_style_instructions, decode_embedding_model_name
 
 import google.generativeai as genai
 from together import Together
@@ -14,8 +14,9 @@ genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
 
 
 class Chatbot:
-	# Todo: Support multiple LLMs
-	def __init__(self, db_handler: DBHandler, style: str = '', llm_model_name: str = 'gemini-1.5-flash',
+	def __init__(self, db_handler: DBHandler,
+				 style: str = '',
+				 llm_model_name: str = 'gemini-1.5-flash',
 				 embedding_model_name: str = 'models/text-embedding-004'):
 		"""
 		Initializes the Chat object
@@ -42,7 +43,7 @@ class Chatbot:
 		else:
 			self.style_instructions = get_style_instructions(style)
 
-		# Initialize the LLM
+		# Initialize the LLM (affects the chosen interact method) --> self.interact
 		if not isinstance(llm_model_name, str):
 			raise ValueError('llm_model_name must be a string')
 		else:
@@ -67,7 +68,9 @@ class Chatbot:
 
 			self.interact = self.together_interact
 
-		# Validate the embedding model name
+		# Validate the embedding model name (affects the chosen embedding method) --> self.embedding
+		embedding_model_name = decode_embedding_model_name(embedding_model_name)
+		self.embedding_model_name = embedding_model_name
 		if not embedding_model_name or embedding_model_name not in ['models/text-embedding-004',
 																	'models/embedding-001', 'cohere']:
 			raise ValueError('Invalid embedding model name')

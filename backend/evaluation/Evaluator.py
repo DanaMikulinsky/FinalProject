@@ -13,8 +13,8 @@ load_dotenv()
 
 
 class Evaluator:
-    def __init__(self, db_handler: DBHandler, style: str = '', llm_model_name: str = 'gemini-1.5-flash'):
-        self.chatbot = Chatbot(db_handler, style=style, llm_model_name=llm_model_name)
+    def __init__(self, db_handler: DBHandler, style: str = '', llm_model_name: str = 'gemini-1.5-flash', embedding_model_name:str = 'models/text-embedding-004'):
+        self.chatbot = Chatbot(db_handler, style=style, llm_model_name=llm_model_name, embedding_model_name=embedding_model_name)
         self.nlp = spacy.load("en_core_web_sm")
 
     def evaluate(self, ground_truth_data):

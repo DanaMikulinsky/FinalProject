@@ -46,3 +46,20 @@ def get_style_instructions(style: str) -> str:
                     Never mention context or lack of information; if more info is needed, ask for it in a rhyming way
                     without referencing context."""
 
+
+def decode_embedding_model_name(embedding_model_name: str) -> str:
+    """
+    Get the embedding model name for the chatbot
+    Args:
+        embedding_model_name (str): The incoded name of the embedding model
+    Returns:
+        str: The embedding model name for the chatbot
+    """
+    if embedding_model_name == 'emb1':
+        embedding_model_name = 'models/text-embedding-004'
+    elif embedding_model_name == 'emb2':
+        embedding_model_name = 'models/embedding-001'
+    elif embedding_model_name == 'emb3':
+        embedding_model_name = 'cohere'
+
+    return embedding_model_name
