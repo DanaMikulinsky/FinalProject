@@ -69,12 +69,12 @@ class Chatbot:
 			self.interact = self.together_interact
 
 		# Validate the embedding model name (affects the chosen embedding method) --> self.embedding
-		embedding_model_name = decode_embedding_model_name(embedding_model_name)
-		self.embedding_model_name = embedding_model_name
-		if not embedding_model_name or embedding_model_name not in ['models/text-embedding-004',
+		decoded_embedding_model_name = decode_embedding_model_name(embedding_model_name)
+		self.embedding_model_name = decoded_embedding_model_name
+		if not decoded_embedding_model_name or decoded_embedding_model_name not in ['models/text-embedding-004',
 																	'models/embedding-001', 'cohere']:
 			raise ValueError('Invalid embedding model name')
-		elif embedding_model_name == 'cohere':
+		if decoded_embedding_model_name == 'cohere':
 			self.embedding = self.cohere_embedding
 		else:
 			self.embedding = self.google_embedding
@@ -164,7 +164,7 @@ class Chatbot:
 
 	def cohere_embedding(self, text: str) -> list:
 		"""
-		Use the Google Embedding API to embed the text
+		Use the Cohere Embedding API to embed the text
 		Args:
 			text (str): the text to embed
 		Returns:
@@ -194,7 +194,7 @@ class Chatbot:
 		query_vector = self.embedding(query)
 		return self.db_handler.search(query_vector)
 
-	def get_relevant_context(self, query: str, similarity_threshold: float = 0.3) -> str:
+	def get_relevant_context(self, query: str, similarity_threshold: float = 0.4) -> str:
 		"""
 		Gets the relevant context from the database
 		Args:
@@ -205,7 +205,6 @@ class Chatbot:
 		"""
 		relevant_chunks = self.get_relevant_chunks(query)
 		if relevant_chunks:
-			# Todo: Improve the logic for selecting the context
 			context = '\n\n\n'.join(
 				[chunk['text'] for chunk in relevant_chunks if chunk['score'] > similarity_threshold])
 		else:
@@ -253,5 +252,5 @@ class Chatbot:
 
 	def __repr__(self):
 		return (
-			f'Chat(org_id={self.db_handler.org_id}, user_id={self.db_handler.user_id}, llm_model_name={self.llm.model_name},'
+			f'Chat(org_id={self.db_handler.org_id}, user_id={self.db_handler.user_id}, llm_model_name={self.llm_model_name},'
 			f'embedding_model_name={self.embedding_model_name})')

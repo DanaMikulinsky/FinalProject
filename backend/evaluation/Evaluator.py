@@ -5,11 +5,13 @@ import pandas as pd
 import spacy
 import warnings
 import time
-from cohere import Client
-
 import os
+
 from dotenv import load_dotenv
 load_dotenv()
+
+import torch
+
 
 
 class Evaluator:
@@ -35,8 +37,12 @@ class Evaluator:
 
     def get_correctness_score(self, true_answer, chatbot_answer):
         try:
+            torch.cuda.empty_cache()
+            os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
             # Semantic similarity (already implemented)
-            cosine_sim = self.get_cosine_similarity(true_answer, chatbot_answer)
+            with torch.no_grad():
+                cosine_sim = self.get_cosine_similarity(true_answer, chatbot_answer)
 
             # Keyword matching
             true_keywords = set(self.nlp(true_answer).noun_chunks)
@@ -55,9 +61,10 @@ class Evaluator:
         except Exception as e:
             print(f'Error in get_correctness_score: {e} for {true_answer}')
             return 0
+
     def get_cosine_similarity(self, true_answer, chatbot_answer):
-        true_embedding = self.chatbot.google_embedding(true_answer)
-        chatbot_embedding = self.chatbot.google_embedding(chatbot_answer)
+        true_embedding = self.chatbot.embedding(true_answer)
+        chatbot_embedding = self.chatbot.embedding(chatbot_answer)
         return cosine_similarity([true_embedding], [chatbot_embedding])[0][0]
 
     def get_retriever_score(self, question, relevant_chunks_id):
@@ -93,8 +100,8 @@ class Evaluator:
         context = self.chatbot.get_relevant_context(question)
 
         # Compare chatbot's answer with the context
-        context_embedding = self.chatbot.google_embedding(context)
-        answer_embedding = self.chatbot.google_embedding(chatbot_answer)
+        context_embedding = self.chatbot.embedding(context)
+        answer_embedding = self.chatbot.embedding(chatbot_answer)
 
         faithfulness_score = cosine_similarity([context_embedding], [answer_embedding])[0][0]
         return faithfulness_score
