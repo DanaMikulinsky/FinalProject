@@ -51,7 +51,7 @@ def decode_embedding_model_name(embedding_model_name: str) -> str:
     """
     Get the embedding model name for the chatbot
     Args:
-        embedding_model_name (str): The incoded name of the embedding model
+        embedding_model_name (str): The encoded name of the embedding model
     Returns:
         str: The embedding model name for the chatbot
     """
@@ -63,3 +63,37 @@ def decode_embedding_model_name(embedding_model_name: str) -> str:
         embedding_model_name = 'cohere'
 
     return embedding_model_name
+
+
+def decode_embedding_model_name_charts(embedding_model_name: str) -> str:
+    """
+    Get the embedding model name for the chatbot
+    Args:
+        embedding_model_name (str): The encoded name of the embedding model
+    Returns:
+        str: The embedding model name for the chatbot
+    """
+    if embedding_model_name == 'emb1':
+        embedding_model_name = 'Gemini-004'
+    elif embedding_model_name == 'emb2':
+        embedding_model_name = 'Gemini-001'
+    elif embedding_model_name == 'emb3':
+        embedding_model_name = 'all-MiniLM-L6-v2'
+
+    return embedding_model_name
+
+
+def decode_llm_model_name(llm_model_name: str) -> str:
+    """
+    Get the LLM model name for the chatbot
+    Args:
+        llm_model_name (str): The encoded name of the LLM model
+    Returns:
+        str: The LLM model name for the chatbot
+    """
+    if llm_model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo':
+        llm_model_name = 'LLaMa 3.1 8B'
+    elif llm_model_name == 'mistralai/Mistral-7B-Instruct-v0.1':
+        llm_model_name = 'Mistral-7B'
+
+    return llm_model_name

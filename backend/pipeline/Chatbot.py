@@ -77,6 +77,7 @@ class Chatbot:
 		if decoded_embedding_model_name == 'cohere':
 			self.embedding = self.cohere_embedding
 		else:
+
 			self.embedding = self.google_embedding
 
 	def together_interact(self, query: str) -> str:
