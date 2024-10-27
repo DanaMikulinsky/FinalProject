@@ -12,7 +12,7 @@ This project implements a Retrieval-Augmented Generation (RAG) chatbot specifica
 
 Ensure you have the following versions installed:
 
-- **Python**: Version 3.9 or higher
+- **Python**: Version 3.10 or higher
 - **Node.js**: Version 21.7.1 or higher
 
 ## Setup Instructions
