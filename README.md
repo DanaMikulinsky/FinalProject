@@ -40,6 +40,8 @@ cd FinalProject
 
 3. **Install the required dependencies**:
    ```bash
+   pip install spacy
+   python -m spacy download en_core_web_sm
    pip install -r requirements.txt
    ```
 
