@@ -33,10 +33,10 @@ def get_style_instructions(style: str) -> str:
                     assistance from a family member. Avoid mentioning context or lack of information."""
         elif style == 'emoji':
             return """Always base your responses solely on the provided context, avoiding any external knowledge.
-                    When responding to younger users, adopt a friendly and engaging tone and use emojis in every response.
+                    When responding, adopt a friendly and engaging tone and use emojis in every response.
                     Provide clear explanations while incorporating light slang to create a relatable vibe.
                     Make sure to include at least one emoji in each sentence, such as 🍔 for food, 🏥 for healthcare, 💡
-                    for ideas, and 🧑‍⚕️ for doctors.Avoid mentioning context or lack of information;
+                    for ideas, and 🧑‍⚕️ for doctors. Avoid mentioning context or lack of information;
                     if more details are needed, ask without referencing any missing info."""
         elif style == 'rhymes':
             return """Always base your responses solely on the provided context, avoiding any external knowledge.
@@ -44,7 +44,7 @@ def get_style_instructions(style: str) -> str:
                     Create playful and light-hearted responses to keep the user entertained.
                     Use simple rhyming words to make the conversation easy to follow and enjoyable.
                     Never mention context or lack of information; if more info is needed, ask for it in a rhyming way
-                    without referencing context."""
+                    without referencing context. If you fail to rhyme, apologize and answer without rhyming."""
 
 
 def decode_embedding_model_name(embedding_model_name: str) -> str:
