@@ -21,7 +21,10 @@ class Evaluator:
 
     def evaluate(self, ground_truth_data):
         results = pd.DataFrame(columns=['question', 'true_answer', 'chatbot_answer', 'cosine_similarity',
-                                        'correctness_score', 'faithfulness_score', 'retriever_scores'])
+                                        'correctness_score', 'faithfulness_score',
+                                        #'retriever_scores',
+                                        'precision', 'recall', 'f1'
+                                        ])
         for question, true_answer, rel_chunks_ids in ground_truth_data:
             chatbot_answer = self.chatbot.answer_question(question)
             result = self.compare_answers(question, true_answer, chatbot_answer, rel_chunks_ids)
@@ -67,7 +70,7 @@ class Evaluator:
         chatbot_embedding = self.chatbot.embedding(chatbot_answer)
         return cosine_similarity([true_embedding], [chatbot_embedding])[0][0]
 
-    def get_retriever_score(self, question, relevant_chunks_id):
+    def get_retriever_score(self, question, relevant_chunks_id) -> dict:
         """
         compare the retrieved chunks with the relevant chunks to estimate the retriever's performance
         Args:
@@ -107,8 +110,11 @@ class Evaluator:
         return faithfulness_score
 
     def compare_answers(self, question, true_answer, chatbot_answer, rel_chunks_ids):
+        retriever_scores_dict = self.get_retriever_score(question, rel_chunks_ids)
         return {
-            'retriever_scores': self.get_retriever_score(question, rel_chunks_ids),
+            'precision': retriever_scores_dict['precision'],
+            'recall': retriever_scores_dict['recall'],
+            'f1': retriever_scores_dict['f1'],
             'cosine_similarity': self.get_cosine_similarity(true_answer, chatbot_answer),
             'correctness_score': self.get_correctness_score(true_answer, chatbot_answer),
             'faithfulness_score': self.get_faithfulness_score(question, chatbot_answer)

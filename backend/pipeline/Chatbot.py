@@ -221,16 +221,18 @@ class Chatbot:
 		Returns:
 			str: The answer to the user's question
 		"""
+		#If you can't answer, ask for more details or say you're unable to respond.
 		rephrased_query = self.rephrase_question(query)
 		context = self.get_relevant_context(rephrased_query)
 		rag_prompt = f"""
+					Context: {context}
 					You are a health care provider's assistant.
 					Answer the user's question based solely on the provided information.
-					If you can't answer, ask for more details or say you're unable to respond.
+					If the context has many different answers, ask for more details to understand the user's needs better.
+					If there is no helpful context at all, say that this it out of your scope.
 					Do not reference context, sources, or previous knowledge in your answer.
 					Avoid phrases like "based on the information given" or anything that implies context awareness.
 					User's question: {rephrased_query}
-					Context: {context}
 					{self.style_instructions}
 					"""
 

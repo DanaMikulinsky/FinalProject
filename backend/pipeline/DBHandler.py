@@ -105,7 +105,7 @@ class DBHandler:
 		except Exception as e:
 			raise RuntimeError(f'An error occurred while trying to reset the chat history: {e}')
 
-	def search(self, query_vector: list, n: int = 5) -> list:
+	def search(self, query_vector: list, n: int = 3) -> list:
 		"""
 		Use MongoDB's Atlas vector search to find the most similar embeddings to the query vector
 		Args:
