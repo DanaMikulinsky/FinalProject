@@ -1,3 +1,7 @@
+Here’s the modified README with additional instructions for checking Python and Node.js versions, downloading them if necessary, and opening a new terminal for the frontend setup:
+
+---
+
 # Moodibot - a RAG-Based Chatbot
 
 ### Authors: Dana Mikulinsky, Nitzan Manor, Saar David
@@ -6,7 +10,7 @@
 
 ## Project Overview
 
-This project implements a Retrieval-Augmented Generation (RAG) chatbot specifically designed to assist users with information related to their rights within the "Maccabi Health Services" organization. The chatbot integrates retrieval and generative capabilities to provide contextually accurate, relevant, and personalized responses. It leverages semantic chunking, Gemini embeddings, and MongoDB to manage data efficiently and track conversation history. The chatbot can adjust its interaction style, allowing it to cater to diverse audiences and adapt to different conversational tones.
+This project implements a Retrieval-Augmented Generation (RAG) chatbot designed to assist users with information related to their rights within the "Maccabi Health Services" organization. The chatbot integrates retrieval and generative capabilities to provide contextually accurate, relevant, and personalized responses. It leverages semantic chunking, Gemini embeddings, and MongoDB to manage data efficiently and track conversation history. The chatbot can adjust its interaction style to cater to diverse audiences and adapt to different conversational tones.
 
 ## Prerequisites
 
@@ -14,6 +18,20 @@ Ensure you have the following versions installed:
 
 - **Python**: Version 3.10 or higher
 - **Node.js**: Version 21.7.1 or higher
+
+### Check for Python and Node.js
+
+To confirm that Python and Node.js are installed and meet the version requirements, run the following commands in your terminal:
+
+```bash
+python3 --version  # or python --version
+node --version
+```
+
+If you do not have these installed or your versions are lower than required, download and install the latest versions from the official sites:
+
+- [Download Python](https://www.python.org/downloads/)
+- [Download Node.js](https://nodejs.org/)
 
 ## Setup Instructions
 
@@ -50,17 +68,24 @@ cd FinalProject
 
 ### 3. Frontend Setup
 
-1. **Navigate to the frontend directory**:
+1. **Open a new terminal window**:  
+   Keep the backend running in its terminal and open a separate terminal window for the frontend.
+
+2. **Navigate to the frontend directory**:
    ```bash
-   cd ../frontend
+   cd frontend
    ```
 
-2. **Install the required npm packages**:
+3. **Install the required npm packages**:
    ```bash
    npm install
    ```
 
-3. **Start the frontend application**:
+4. **Start the frontend application**:
    ```bash
    npm start
    ```
+
+---
+
+Your backend should now be running on its own terminal, with the frontend running in a separate terminal window. You are ready to start using Moodibot!
