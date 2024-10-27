@@ -34,8 +34,8 @@ cd FinalProject
 
 2. **Create a Python virtual environment**:
    ```bash
-   python3 -m venv moodibot_venv
-   source moodibot_venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   python3.10 -m venv moodibot_venv
+   source moodibot_venv/bin/activate  # On Windows, use `moodibot_venv\Scripts\activate`
    ```
 
 3. **Install the required dependencies**:
