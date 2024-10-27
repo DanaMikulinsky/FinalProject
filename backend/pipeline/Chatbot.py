@@ -1,5 +1,5 @@
-from backend.pipeline.DBHandler import DBHandler
-from backend.utils.helpers import get_style_instructions, decode_embedding_model_name
+from pipeline.DBHandler import DBHandler
+from utils.helpers import get_style_instructions, decode_embedding_model_name
 
 import google.generativeai as genai
 from together import Together
