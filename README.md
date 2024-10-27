@@ -1,4 +1,4 @@
-# Data Analysis and Visualization Project - RAG-Based Chatbot
+# Data Analysis and Visualization Project: Moodibot: a RAG-Based Chatbot
 
 ### Authors: Dana Mikulinsky, Nitzan Manor, Saar David
 
