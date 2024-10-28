@@ -41,6 +41,7 @@ def create_chatbot():
                 'chat': chatbot.__repr__(),
                 'db': db_handler.__repr__()
             }
+            print(to_return)
             return jsonify(to_return)
         else:
             return jsonify({'error': 'No data provided'})

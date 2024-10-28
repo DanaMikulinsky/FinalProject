@@ -49,7 +49,7 @@ export default function Chat({setStarted, chatStyle, setChatStyle}) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                org_id: 'maccabi',
+                org_id: 's_maccabi_emb2',
                 user_id: 'test_user',
                 style: chatStyle === 'default' ? '' : chatStyle
             })
