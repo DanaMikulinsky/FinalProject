@@ -17,7 +17,7 @@ class Chatbot:
 	def __init__(self, db_handler: DBHandler,
 				 style: str = '',
 				 llm_model_name: str = 'mistralai/Mistral-7B-Instruct-v0.1',
-				 embedding_model_name: str = decode_embedding_model_name('emb2')):
+				 embedding_model_name: str = decode_embedding_model_name('emb1')):
 		"""
 		Initializes the Chat object
 		Args:
