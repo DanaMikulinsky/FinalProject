@@ -31,6 +31,9 @@ def create_chatbot():
             db_handler = DBHandler(org_id, user_id)
             chatbot = Chatbot(db_handler, style)
 
+            # Reset the chat history if it already exists
+            db_handler.reset_history()
+
             to_return = {
                 'message': 'Chatbot created',
                 'org_id': org_id,
