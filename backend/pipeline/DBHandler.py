@@ -59,6 +59,24 @@ class DBHandler:
 
 		# Format the messages in the desired 'role: content' format
 		formatted_messages = [f"{message['role']}: {message['content']}" for message in messages]
+
+		return formatted_messages
+
+	def get_user_history(self) -> list:
+		"""
+		Get the chat history from the database
+		Returns:
+			formatted_messages (list): A list of strings containing the chat history in the format 'role: content'
+		Raises:
+			RuntimeError: If an error occurs while trying to get the chat history
+		"""
+		try:
+			messages = self.history_collection.find()
+		except Exception as e:
+			raise RuntimeError(f'An error occurred while trying to get the chat history: {e}')
+
+		formatted_messages = [f"{message['content'].replace('Rephrased question:', '')}" for message in messages
+							  if message['role'] == 'user']
 		return formatted_messages
 
 	def update(self, db: str, items: Union[dict, list]) -> Union[InsertOneResult, InsertManyResult]:

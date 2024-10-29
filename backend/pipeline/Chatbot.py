@@ -118,7 +118,7 @@ class Chatbot:
 		except Exception as e:
 			raise RuntimeError(f'Error interacting with model: {e}')
 
-	def rephrase_question(self, query: str, history_length: int = 5) -> str:
+	def rephrase_question(self, query: str, history_length: int = 3) -> str:
 		"""
 		Rephrases the last user's question as a standalone question
 		Args:
@@ -132,15 +132,28 @@ class Chatbot:
 		if not query or not isinstance(query, str):
 			raise ValueError('Query must be a non-empty string')
 
-		chat_history = self.db_handler.get_history()
+		chat_history = self.db_handler.get_user_history()
 		chat_history.append(f'user: {query}')
-
-		# Only use the last 5 messages in the chat history to keep the context relevant
+		#
+		# # Only use the last 5 messages in the chat history to keep the context relevant
+		# prompt = f"""
+		# 		Your job is to rephrase the last user's question as a standalone question that can be understood without
+		# 		the context that is provided in the chat history.
+		# 		If the user's question is already standalone, just return it as it is.
+		# 		Chat history: {chat_history[-history_length:]}
+		# 		"""
 		prompt = f"""
-				Your job is to rephrase the last user's question as a standalone question that can be understood without
-				the context that is provided in the chat history.
-				If the user's question is already standalone, just return it as it is.
-				Chat history: {chat_history[-history_length:]}
+					Read the following chat history, which includes a series of questions.
+					 Then, look at the last question in the sequence, which is {query}.
+					 If the last question depends on information from previous questions, 
+					 rephrase it to make it fully understandable on its own, without needing the context of earlier questions. 
+					 Your rephrased question should clearly reflect any information implied by the history.
+					Example - History:
+					"What is the capital of France?"
+					"And what's its population?"
+					New question: 'What is the population of Paris?'
+					
+					Chat history: {chat_history[-history_length:]}
 				"""
 		response = self.interact(prompt)
 		return response
