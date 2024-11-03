@@ -11,6 +11,7 @@ Here’s the modified README with additional instructions for checking Python an
 ## Project Overview
 
 This project implements a Retrieval-Augmented Generation (RAG) chatbot designed to assist users with information related to their rights within the "Maccabi Health Services" organization. The chatbot integrates retrieval and generative capabilities to provide contextually accurate, relevant, and personalized responses. It leverages semantic chunking, Gemini embeddings, and MongoDB to manage data efficiently and track conversation history. The chatbot can adjust its interaction style to cater to diverse audiences and adapt to different conversational tones.
+**Please Note** that this is an installation guide for a local machine. You can also accsess partial chatbot abilities by using the "chat_no_ui" Jupyter Notebbok.
 
 ## Prerequisites
 
