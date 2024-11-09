@@ -1,7 +1,3 @@
-Here’s the modified README with additional instructions for checking Python and Node.js versions, downloading them if necessary, and opening a new terminal for the frontend setup:
-
----
-
 # Moodibot - a RAG-Based Chatbot
 
 ### Authors: Dana Mikulinsky, Nitzan Manor, Saar David
